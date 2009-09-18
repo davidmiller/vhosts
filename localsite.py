@@ -10,21 +10,35 @@ Retrieve begun
 Version 0.01
 Author David Miller
 """
+import logging
+import logging.handlers
 import os
 import pwd
 import subprocess
 import argparse
+
+LOG_FILENAME = '.localsite.log'
+handler = logging.FileHandler(LOG_FILENAME)
+logger = logging.getLogger('create')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+ret_logger = logging.getLogger('retrieve')
+ret_logger.setLevel(logging.DEBUG)
+ret_logger.addHandler(handler)
+
 
 class LocalSite:
     """LocalSite Class """
 
     def list_sites(self):
         """Lists local sites"""
-        print 'Should be listing localsites now'    
+        ret_logger.debug('Should be listing localsites now',
+                         exc_info=1
+                         )
 
     def create(self):
         """Creates a site"""
-        print 'should be creating a site now'
+        logger.debug('Trying to create %s' % args.name)
         # Check for Create mode
         if args.dir:
             if args.dir[-1:] == '/': args.dir = args.dir[:-1]
