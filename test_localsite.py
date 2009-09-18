@@ -14,7 +14,7 @@ class MyTest(unittest.TestCase):
         myclass = LocalSite()
 
         try:
-            result = myclass.list_sites()
+            result = myclass.retrieve()
             self.assertTrue(result)
         finally:
             pass

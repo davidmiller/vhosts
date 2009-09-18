@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 """ Manages sites on the local machine for
 development purposes.
-Moved to a CRUD design pattern.
 
-Create completed but not as a class
-
-Retrieve begun
+Retrieve is just a placeholder for now
 
 Version 0.01
 Author David Miller
@@ -31,13 +28,6 @@ ret_logger.addHandler(handler)
 
 class LocalSite:
     """LocalSite Class """
-
-    def list_sites(self):
-        """Lists local sites"""
-        ret_logger.debug('Should be listing localsites now',
-                         exc_info=1
-                         )
-        return True
 
     def create(self):
         """Creates a site"""
@@ -92,6 +82,12 @@ class LocalSite:
         file.write('Hello Beautful World')
         file.close()
         print 'site created'
+
+    def retrieve(self):
+        """Lists local sites"""
+        ret_logger.debug('Should be listing localsites now')
+        return True
+
 
     def __init__(self):
         self.host_tpl = """
