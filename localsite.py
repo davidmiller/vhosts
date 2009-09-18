@@ -19,9 +19,11 @@ import argparse
 
 LOG_FILENAME = '.localsite.log'
 handler = logging.FileHandler(LOG_FILENAME)
+
 logger = logging.getLogger('create')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
+
 ret_logger = logging.getLogger('retrieve')
 ret_logger.setLevel(logging.DEBUG)
 ret_logger.addHandler(handler)
@@ -35,47 +37,56 @@ class LocalSite:
         ret_logger.debug('Should be listing localsites now',
                          exc_info=1
                          )
+        return True
 
     def create(self):
         """Creates a site"""
         logger.debug('Trying to create %s' % args.name)
         # Check for Create mode
+
         if args.dir:
             if args.dir[-1:] == '/': args.dir = args.dir[:-1]
-        #clean up the Document root
+            #clean up the Document root
             abs_dir = os.path.join(args.dir,args.name)
+
         # Create an entry in /etc/hosts
         host_instance = self.host_tpl % {'files': abs_dir, 'site':args.name}
         file = open('/etc/hosts', 'a')
         file.write(host_instance)
         file.close()
-        # Create the vhosts conf file for the new site
 
+        # Create the vhosts conf file for the new site
         conf_filename = args.name+'.conf'
         conf_location = os.path.join('/etc/apache2/sites-available/',conf_filename)
         file = open(conf_location, 'w')
         file.write(self.virtualhost_tpl % {'site': args.name, 'dir': abs_dir})
         file.close()
+
         # create the symlink in sites enabled
         os.chdir('/etc/apache2/sites-enabled')
         os.symlink(conf_location, conf_filename)
+
         # Restart apache
         subprocess.call(['apache2ctl', 'restart'])
+
         # Drop the permissions down to create the Document root
         uid = pwd.getpwnam(os.getlogin())[2]
         gid = pwd.getpwnam(os.getlogin())[3]
         os.setgid(gid)
         os.setuid(uid)
+
         # Check for the directory, create if it doesn't exist yet
         if os.path.isdir(abs_dir):
             pass
         else:
             os.mkdir(abs_dir)
+
         # Create boilerplate structure if selected
         if args.structure:
             os.mkdir(os.path.join(abs_dir,'css'))
             os.mkdir(os.path.join(abs_dir,'js'))    
             os.mkdir(os.path.join(abs_dir,'images'))      
+
         # Create the index file for the new site
         file = open(abs_dir+'/index.html', 'w')
         file.write('Hello Beautful World')
@@ -89,6 +100,7 @@ class LocalSite:
 127.0.0.1    %(site)s
 127.0.0.1    www.%(site)s
         """
+
         self.virtualhost_tpl ="""<VirtualHost %(site)s>
 ServerAdmin webmaster@localhost
 ServerAlias www.%(site)s
@@ -111,7 +123,10 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dir',
                         help='Absolute path to the site directory')
     args = parser.parse_args()
+
+    # Initialize class
     site = LocalSite()
+
     # Check for Retrive mode
     if args.list == True:
         site.list_sites()
