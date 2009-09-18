@@ -24,6 +24,13 @@ class LocalSite:
 
     def create(self):
         """Creates a site"""
+        # Check for Create mode
+        if args.dir:
+        #clean up the Document root
+            if args.dir[-1:] == '/': args.dir = args.dir[:-1]
+            abs_dir = os.path.join(args.dir,args.name)
+
+
         print 'should be creating a site now'
 
     def __init__(self):
