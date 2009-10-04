@@ -2,8 +2,6 @@
 """ Manages sites on the local machine for
 development purposes.
 
-Retrieve is just a placeholder for now
-
 Version 0.01
 Author David Miller
 """
@@ -13,6 +11,7 @@ import os
 import pwd
 import re
 import subprocess
+import sys
 import argparse
 
 
@@ -139,22 +138,41 @@ class VirtualHost:
 
         
 if __name__ == '__main__':
-    package_description = """Create a development site on your local apache"""
-    parser = argparse.ArgumentParser( description=package_description )
-    parser.add_argument( '-s', '--structure',
-                         action='store_true',
-                         help='create boilerplate directory structure' )
-    parser.add_argument( '-l', '--list',
-                         action='store_true',
-                         help='List all current LocalSites' )
-    parser.add_argument( '-n', '--name',
-                         help='Name of the site' )
-    parser.add_argument( '-d', '--dir',
-                         help='Absolute path to the site directory' )
+
+
+
+
+
+    # Initialize class
+    site = LocalSite()
+
+
+    program = 'localsite'
+    parser = argparse.ArgumentParser( prog = program )
+#    parser.add_argument( '-l', '--list',
+#                         action='store_true',
+#                         help='List all current LocalSites' )
     parser.add_argument( '--debug',
                          action='store_true',
                          help='Turn on debugging notices')
+    subparsers = parser.add_subparsers( help = 'sub command help' )
+
+    parser_list = subparsers.add_parser( 'list',
+                                         help = 'List localsites' )
+    parser_list.set_defaults( func = ( lambda: sys.stdout.write( site.list_sites() ) ) )
+
+    parser_create = subparsers.add_parser( 'create', help = 'Create a localsite' )
+    parser_create.add_argument( '-s', '--structure',
+                                action='store_true',
+                                help='create boilerplate directory structure' )
+    parser_create.add_argument( 'name',
+                                help='Name of the site' )
+    parser_create.add_argument( '-d', '--dir',
+                                help='Absolute path to the site directory' )
+
     args = parser.parse_args()
+
+
 
 
     #  Define logging behaviour
@@ -187,14 +205,12 @@ if __name__ == '__main__':
     ret_logger.addHandler( console_handler )
 
 
-    # Initialize class
-    site = LocalSite()
 
     # Check for Retrive mode
-    if args.list == True:
+    if 'list' in sys.argv:
         print site.list_sites()
         ret_logger.debug( site.sites_available )
         
-    # Check for Create mode
-    if args.dir and args.name:
+#     Check for Create mode
+    if 'create' in sys.argv:
         site.create()
