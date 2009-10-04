@@ -97,7 +97,8 @@ class LocalSite:
 127.0.0.1    www.%(site)s
         """
 
-        self.virtualhost_tpl ="""<VirtualHost %(site)s>
+        self.virtualhost_tpl ="""<VirtualHost 127.0.0.1:80>
+ServerName %(site)s
 ServerAdmin webmaster@localhost
 ServerAlias www.%(site)s
 DocumentRoot %(dir)s
