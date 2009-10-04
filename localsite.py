@@ -21,12 +21,22 @@ class LocalSite:
     def create(self):
         """Creates a site"""
         create_logger.debug('Trying to create %s' % args.name)
-        # Check for Create mode
 
+        if os.environ['USER'] != 'root':
+            print self.failures['permissions']
+            sys.exit()
+        
+        # Check for Create mode
+        print args
         if args.dir:
+            print 'yes to args.dir'
             if args.dir[-1:] == '/': args.dir = args.dir[:-1]
             #clean up the Document root
-            abs_dir = os.path.join(args.dir,args.name)
+        else:
+            args.dir = os.getcwd()            
+        abs_dir = os.path.join(args.dir,args.name)
+
+        self.enable_multiple_sites()
 
         # Create an entry in /etc/hosts
         host_instance = self.host_tpl % {'files': abs_dir, 'site':args.name}
@@ -73,7 +83,20 @@ class LocalSite:
         print 'site created'
 
     def enable_multiple_sites( self ):
-        return False
+        f = open( '/etc/apache2/apache2.conf', 'r' )
+        config = f.read()
+        f.close()
+        if self.name_directive_localsite_RE.search( config ):
+            return True
+        else:
+            if self.name_directive_RE.search( config ):
+                print self.failures['name_directive']
+                sys.exit()
+            else:
+                f = open( '/etc/apache2/apache2.conf', 'a' )
+                f.write( self.name_directive_tpl  )
+                f.close()
+        return True
 
 
     def get_vhosts( self ):
@@ -111,6 +134,9 @@ class LocalSite:
 
 
     def __init__( self ):
+        self.name_directive_localsite_RE = re.compile( 'NameVirtualHost 127.0.0.1:80' )
+        self.name_directive_RE = re.compile( 'NameVirtualHost' )
+        
         self.host_tpl = """
 # Local development site created by localsite
 # files stored at %(files)s
@@ -127,6 +153,28 @@ DocumentRoot %(dir)s
 CustomLog /var/log/apache2/%(site)s.log combined
 </VirtualHost>"""
 
+        self.name_directive_tpl = """# NameVirtualHost directive to allow multiple hosts
+NameVirtualHost 127.0.0.1:80"""
+
+        self.failures = {
+            'permissions': """###################################
+
+Creating sites requires root privileges
+because there are a bunch of files in root owned
+directories that need modifying/creating
+
+Try running the create command with sudo""",
+            
+            'name_directive': """###################################
+
+Sorry, something in your apache2.conf file is incompatible with
+localsite
+
+localsite currently only works with a NameVirtualHost directive in
+your apache2.conf set to 127.0.0.1:80 it looks like your apache2.conf
+already has another setting in there.
+"""
+                        }
 
 class VirtualHost:
     """ Models a VirtualHost"""
@@ -140,18 +188,12 @@ class VirtualHost:
 if __name__ == '__main__':
 
 
-
-
-
     # Initialize class
     site = LocalSite()
 
-
+    # Set arguments
     program = 'localsite'
     parser = argparse.ArgumentParser( prog = program )
-#    parser.add_argument( '-l', '--list',
-#                         action='store_true',
-#                         help='List all current LocalSites' )
     parser.add_argument( '--debug',
                          action='store_true',
                          help='Turn on debugging notices')
@@ -171,8 +213,6 @@ if __name__ == '__main__':
                                 help='Absolute path to the site directory' )
 
     args = parser.parse_args()
-
-
 
 
     #  Define logging behaviour
@@ -210,6 +250,7 @@ if __name__ == '__main__':
     if 'list' in sys.argv:
         print site.list_sites()
         ret_logger.debug( site.sites_available )
+
         
 #     Check for Create mode
     if 'create' in sys.argv:
