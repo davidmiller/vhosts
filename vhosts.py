@@ -16,6 +16,7 @@ def apache_restart():
 
 def enable( conf_loc, conf_name ):
     """ Enable a site by creating a symlink """
+    import os
     os.chdir( '/etc/apache2/sites-enabled' )
     os.symlink( conf_loc, conf_name )
 
