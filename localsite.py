@@ -255,3 +255,16 @@ if __name__ == '__main__':
 #     Check for Create mode
     if 'create' in sys.argv:
         site.create()
+
+
+#create
+
+#list
+
+#disable
+
+#remove
+
+#syntaxcheck
+
+#adjust
