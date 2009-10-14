@@ -37,8 +37,17 @@ def apache_restart():
 
 def enable( conf_loc, conf_name ):
     """ Enable a site by creating a symlink """
-    os.chdir( '/etc/apache2/sites-enabled' )
-    os.symlink( conf_loc, conf_name )
+    if has_root_perms( 'enable' ):
+        if os.path.isfile( conf_loc ):
+            os.chdir( '/etc/apache2/sites-enabled' )
+            os.symlink( conf_loc, conf_name )
+        else:
+            print """Sorry, but there doesn't seem to be an apache VirtualHost
+configuration file for %s 
+You might like to check the spelling or perhaps create the site
+            """ % conf_loc
+            sys.exit()
+    return True
 
 
 def disable( name ):
@@ -48,10 +57,11 @@ def disable( name ):
         link = os.path.join( '/etc/apache2/sites-enabled', name )
         if os.path.islink( link ):
             os.unlink( link )
-            print "\n%s disabled!\n" % name
         else:
             print """Sorry, but the site '%s' doesn't seem to be enabled.
 You might like to check your spelling""" % name
+            sys.exit()
+    return True
 
 
 class VirtualHost:
@@ -80,9 +90,20 @@ class Vhosts:
         self.do_create = create.Create( args )
 
 
+    def enable( self ):
+        """ Enable a VirtuaHost """
+        filename = args.site + '.conf'
+        location = os.path.join( '/etc/apache2/sites-available', filename )
+        enable( location, filename )
+        apache_restart()
+        print "\n%s enabled!\n" %args.site
+
+
     def disable( self ):
-        """ Disable a virtual Host """
+        """ Disable a VirtualHost """
         disable( args.site )
+        apache_restart()
+        print "\n%s disabled!\n" % args.site
 
         
 if __name__ == '__main__':
@@ -122,6 +143,13 @@ if __name__ == '__main__':
     parser_disable.add_argument( 'site',
                                  help = 'Name of the site to disable e.g. example.com' )
     parser_disable.set_defaults( func = vhosts.disable )                                            
+
+
+    parser_enable = subparsers.add_parser( 'enable',
+                                           help = 'Enable a VirtualHost' )
+    parser_enable.add_argument( 'site',
+                                help = 'Name of the site to enable e.g. example.com' )
+    parser_enable.set_defaults( func = vhosts.enable )
 
 
     args = parser.parse_args()

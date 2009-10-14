@@ -1,11 +1,18 @@
-create
+#Todo:#
 
-list
+    remove
 
-disable
+    syntaxcheck
 
-remove
+    adjust
 
-syntaxcheck
 
-adjust
+#Done:#
+
+    create
+
+    list
+
+    disable
+
+    enable
