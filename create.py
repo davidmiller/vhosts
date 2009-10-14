@@ -1,6 +1,5 @@
 """ Creates an apache VirtiualHost instance """
 import os
-import pwd
 import subprocess
 import sys
 import vlogging
@@ -55,6 +54,13 @@ class Create:
         vlogging.create_logger.debug( 'Trying to create %s' % self.args.name )
         self.has_perms()
         self.get_web_root()
+        self.make_hosts_entry()
+        self.make_conf()
+        import vhosts
+        vhosts.enable( self.conf_loc, self.conf_name )
+        self.drop_perms()
+        self.make_web_root()
+        vhosts.apache_restart()
 
 
     def has_perms( self ):
@@ -86,48 +92,41 @@ class Create:
 
     def make_conf( self ):
         """ Create the vhost.conf file """
-        conf_name = self.args.name + '.conf'
-        conf_loc = os.path.join( '/etc/apache2/sites-available/', conf_name )
-        file = open( conf_loc, 'w' )
+        self.conf_name = self.args.name + '.conf'
+        self.conf_loc = os.path.join( '/etc/apache2/sites-available/', self.conf_name )
+        file = open( self.conf_loc, 'w' )
         file.write( virtualhost_tpl % {'site': self.args.name, 
                                        'dir': self.web_root } )
         file.close()
 
 
-    def __init__( self, args ):
-        self.args = args
-        self.create()
-
-
-class SomeClass:
-    def create( self ):        
-
-        os.chdir('/etc/apache2/sites-enabled')
-        os.symlink(conf_location, conf_filename)
-
-        # Restart apache
-        subprocess.call(['apache2ctl', 'restart'])
-
-        # Drop the permissions down to create the Document root
+    def drop_perms( self ):
+        """ Drop the permissions down from root """
+        import pwd
         uid = pwd.getpwnam( os.getlogin() )[2]
         gid = pwd.getpwnam( os.getlogin() )[3]
         os.setgid( gid )
         os.setuid( uid )
 
-        # Check for the directory, create if it doesn't exist yet
-        if os.path.isdir( abs_dir ):
+
+    def make_web_root( self ):
+        """ Make sure the web root dir exists. Create if not """
+        if os.path.isdir( self.web_root ):
             pass
         else:
-            os.mkdir( abs_dir )
-
+            os.mkdir( self.web_root )
         # Create boilerplate structure if selected
-        if args.structure:
-            os.mkdir( os.path.join( abs_dir,'css' ) )
-            os.mkdir( os.path.join( abs_dir,'js' ) )    
-            os.mkdir( os.path.join( abs_dir,'images' ) )      
-
+        if self.args.structure:
+            os.mkdir( os.path.join( self.web_root,'css' ) )
+            os.mkdir( os.path.join( self.web_root,'js' ) )    
+            os.mkdir( os.path.join( self.web_root,'images' ) )      
         # Create the index file for the new site
-        file = open( abs_dir+'/index.html', 'w' )
+        file = open( os.path.join( self.web_root + '/index.html' ), 'w' )
         file.write( 'Hello Beautful World' )
         file.close()
-        print 'site created'
+        print 'site created!'
+
+
+    def __init__( self, args ):
+        self.args = args
+        self.create()

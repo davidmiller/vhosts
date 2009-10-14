@@ -8,6 +8,17 @@ Author David Miller
 import sys
 import argparse
 
+def apache_restart():
+    """ Restarts the apache server """
+    import subprocess
+    subprocess.call( ['apache2ctl', 'restart'] )
+
+
+def enable( conf_loc, conf_name ):
+    """ Enable a site by creating a symlink """
+    os.chdir( '/etc/apache2/sites-enabled' )
+    os.symlink( conf_loc, conf_name )
+
 
 class VirtualHost:
     """ Models a VirtualHost"""
