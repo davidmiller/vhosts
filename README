@@ -1,5 +1,3 @@
-Commandline program to manage local virtualhosts on 
-an apache instance. Currently only copes with apache
-2.2 on Ubuntu
+Commandline program to manage apache VirtualHosts
 
-Dependancies: argparsesome text
+Currently only copes with a sites-available sites-enabled 
