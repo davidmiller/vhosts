@@ -2,7 +2,7 @@
 import logging
 
 
-LOG_FILENAME = '.localsite.log'
+LOG_FILENAME = '.vhosts.log'
 logformat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 formatter = logging.Formatter( logformat )
 

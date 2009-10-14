@@ -4,30 +4,7 @@ import subprocess
 import sys
 import vlogging
 
-failures = {
-            'permissions': """
-###################################
-
-Creating sites requires root privileges
-because there are a bunch of files in root owned
-directories that need modifying or creating
-
-Try running the create command with sudo
-
-###################################\n""",
             
-            'name_directive': """
-###################################
-
-Sorry, something in your apache2.conf file is incompatible with
-localsite
-
-localsite currently only works with a NameVirtualHost directive in
-your apache2.conf set to 127.0.0.1:80 it looks like your apache2.conf
-already has another setting in there.
-"""
-            }
-
 host_tpl = """
 # Local development site created by localsite
 # files stored at %(files)s
@@ -52,22 +29,18 @@ class Create:
     def create( self ):
         """Creates a site"""
         vlogging.create_logger.debug( 'Trying to create %s' % self.args.name )
-        self.has_perms()
-        self.get_web_root()
-        self.make_hosts_entry()
-        self.make_conf()
         import vhosts
-        vhosts.enable( self.conf_loc, self.conf_name )
-        self.drop_perms()
-        self.make_web_root()
-        vhosts.apache_restart()
+        if vhosts.has_root_perms( 'create' ):
+            self.get_web_root()
+            self.make_hosts_entry()
+            self.make_conf()
 
+            vhosts.enable( self.conf_loc, self.conf_name )
+            vhosts.apache_restart()
 
-    def has_perms( self ):
-        """ Check to see that we have permission to edit root owned files"""
-        if os.environ['USER'] != 'root':
-            print failures['permissions']
-            sys.exit()
+            self.drop_perms()
+            self.make_web_root()
+            print "\nYeah! %s created!" % self.args.name
 
 
     def get_web_root( self ):
@@ -124,7 +97,6 @@ class Create:
         file = open( os.path.join( self.web_root + '/index.html' ), 'w' )
         file.write( 'Hello Beautful World' )
         file.close()
-        print 'site created!'
 
 
     def __init__( self, args ):
