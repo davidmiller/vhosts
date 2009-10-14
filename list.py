@@ -22,6 +22,7 @@ class List:
             file_path = os.path.join( available_dir, item )
             if os.path.isfile( file_path ):
                 f = open( file_path, 'rb' )
+                # Check to see if the site was created by vhosts.py
                 if self.created_RE.match( f.read( 36 ) ):
                     if item in sites_enabled:
                         enabled = True

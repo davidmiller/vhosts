@@ -1,13 +1,13 @@
+""" Define logging behaviour """
 import logging
-#  Define logging behaviour
+
+
 LOG_FILENAME = '.localsite.log'
 logformat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 formatter = logging.Formatter( logformat )
 
-#    if args.debug:
+
 console_level = logging.DEBUG
-  #  else:
-   #     console_level = logging.ERROR
 
 
 file_handler = logging.FileHandler( LOG_FILENAME )
