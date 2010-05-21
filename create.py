@@ -48,7 +48,7 @@ class Create:
         if self.args.dir:
             print 'yes to args.dir'
             #clean up the Document root
-            if args.dir[-1:] == '/': args.dir = args.dir[:-1]
+            if self.args.dir[-1:] == '/': self.args.dir = self.args.dir[:-1]
         else:
             self.args.dir = os.getcwd()            
         self.web_root = os.path.join( self.args.dir, self.args.name )
