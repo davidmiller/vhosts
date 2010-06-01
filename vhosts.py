@@ -135,6 +135,10 @@ if __name__ == '__main__':
                                 help='Name of the site' )
     parser_create.add_argument( '-d', '--dir',
                                 help='Absolute path to the site directory' )
+    HANDLER_HELP = 'Add an application-x handler for common languages'
+    HANDLER_CHOICES = ['perl', 'php', 'python']
+    parser_create.add_argument( '-a', '--add-handler',
+                                help=HANDLER_HELP, choices=HANDLER_CHOICES )
     parser_create.set_defaults( func = vhosts.create )
 
 

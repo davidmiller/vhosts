@@ -2,6 +2,7 @@
 import os
 import subprocess
 import sys
+import vhosts
 import vlogging
 
             
@@ -12,15 +13,22 @@ host_tpl = """
 127.0.0.1    www.%(site)s
         """
 
-virtualhost_tpl ="""#VirtualHost created by localsite.py
+virtualhost_tpl ="""#VirtualHost created by vhosts.py
 <VirtualHost 127.0.0.1:80>
 ServerName %(site)s
 ServerAdmin webmaster@localhost
 ServerAlias www.%(site)s
+%(handler)s
 DocumentRoot %(dir)s
 CustomLog /var/log/apache2/%(site)s.log combined
 </VirtualHost>"""
 
+
+HANDLERS = { 'php': """  <FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+  </FilesMatch>
+"""
+}
 
 class Create:
     """ Creates an apache VirtiualHost instance """
@@ -29,9 +37,9 @@ class Create:
     def create( self ):
         """Creates a site"""
         vlogging.create_logger.debug( 'Trying to create %s' % self.args.name )
-        import vhosts
         if vhosts.has_root_perms( 'create' ):
             self.get_web_root()
+            self.get_handler()
             self.make_hosts_entry()
             self.make_conf()
 
@@ -53,6 +61,13 @@ class Create:
             self.args.dir = os.getcwd()            
         self.web_root = os.path.join( self.args.dir, self.args.name )
 
+    def get_handler(self):
+        """Determines the application handler"""
+        if self.args.add_handler:
+            vlogging.create_logger.debug("Found an application handler!")
+            self.handler = HANDLERS[self.args.add_handler]
+        else:
+            self.handler = ""
 
     def make_hosts_entry( self ):
         """ Adds an entry to /etc/hosts for local development """
@@ -62,16 +77,15 @@ class Create:
         file.write( host_entry )
         file.close()
 
-
     def make_conf( self ):
         """ Create the vhost.conf file """
         self.conf_name = self.args.name + '.conf'
         self.conf_loc = os.path.join( '/etc/apache2/sites-available/', self.conf_name )
         file = open( self.conf_loc, 'w' )
         file.write( virtualhost_tpl % {'site': self.args.name, 
-                                       'dir': self.web_root } )
+                                       'dir': self.web_root,
+                                       'handler': self.handler} )
         file.close()
-
 
     def drop_perms( self ):
         """ Drop the permissions down from root """
