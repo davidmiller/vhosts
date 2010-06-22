@@ -1,8 +1,8 @@
 """ Lists current vhosts """
 import os
 import re 
-from . import vlogging
-from .vhosts import VirtualHost
+import vlogging
+from vhosts import VirtualHost
 
 
 class List:

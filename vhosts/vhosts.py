@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ 
 Commandline API for Apache Virtual Hosts
 
@@ -79,7 +79,7 @@ class Vhosts:
 
     def list( self ):
         """" List the vhosts """
-        from . import list
+        import list
         self.do_list = list.List()
         print(self.do_list.list_sites())
 
