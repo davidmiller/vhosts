@@ -23,7 +23,7 @@ Try running the %s command with sudo
 def has_root_perms( context ):
     """ Check to see that we have permission to edit root owned files"""
     if os.environ['USER'] != 'root':
-        print perms_fail % context
+        print(perms_fail % context)
         sys.exit()
     else: 
         return True
@@ -42,10 +42,10 @@ def enable( conf_loc, conf_name ):
             os.chdir( '/etc/apache2/sites-enabled' )
             os.symlink( conf_loc, conf_name )
         else:
-            print """Sorry, but there doesn't seem to be an apache VirtualHost
+            print("""Sorry, but there doesn't seem to be an apache VirtualHost
 configuration file for %s 
 You might like to check the spelling or perhaps create the site
-            """ % conf_loc
+            """ % conf_loc)
             sys.exit()
     return True
 
@@ -58,8 +58,8 @@ def disable( name ):
         if os.path.islink( link ):
             os.unlink( link )
         else:
-            print """Sorry, but the site '%s' doesn't seem to be enabled.
-You might like to check your spelling""" % name
+            print("""Sorry, but the site '%s' doesn't seem to be enabled.
+You might like to check your spelling""" % name)
             sys.exit()
     return True
 
@@ -79,14 +79,14 @@ class Vhosts:
 
     def list( self ):
         """" List the vhosts """
-        import list
+        from . import list
         self.do_list = list.List()
-        print self.do_list.list_sites()
+        print(self.do_list.list_sites())
 
 
     def create( self ):
         """ Create a new Virtual Host """
-        import create
+        from . import create
         self.do_create = create.Create( args )
 
 
@@ -96,14 +96,14 @@ class Vhosts:
         location = os.path.join( '/etc/apache2/sites-available', filename )
         enable( location, filename )
         apache_restart()
-        print "\n%s enabled!\n" %args.site
+        print("\n%s enabled!\n" %args.site)
 
 
     def disable( self ):
         """ Disable a VirtualHost """
         disable( args.site )
         apache_restart()
-        print "\n%s disabled!\n" % args.site
+        print("\n%s disabled!\n" % args.site)
 
         
 if __name__ == '__main__':

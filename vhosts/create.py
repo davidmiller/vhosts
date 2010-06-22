@@ -2,8 +2,8 @@
 import os
 import subprocess
 import sys
-import vhosts
-import vlogging
+from . import vhosts
+from . import vlogging
 
             
 host_tpl = """
@@ -48,13 +48,13 @@ class Create:
 
             self.drop_perms()
             self.make_web_root()
-            print "\nYeah! %s created!" % self.args.name
+            print("\nYeah! %s created!" % self.args.name)
 
 
     def get_web_root( self ):
         """ Determine the web root """
         if self.args.dir:
-            print 'yes to args.dir'
+            print('yes to args.dir')
             #clean up the Document root
             if self.args.dir[-1:] == '/': self.args.dir = self.args.dir[:-1]
         else:

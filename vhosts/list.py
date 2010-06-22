@@ -1,8 +1,8 @@
 """ Lists current vhosts """
 import os
 import re 
-import vlogging
-from vhosts import VirtualHost
+from . import vlogging
+from .vhosts import VirtualHost
 
 
 class List:
@@ -46,4 +46,4 @@ class List:
 
 if __name__ == "__main__":
     list = List()
-    print list.list_sites()
+    print(list.list_sites())
